@@ -2,6 +2,11 @@ using Service = OTP_Share.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.WebHost.ConfigureKestrel(options =>
+{
+  options.ListenAnyIP(80); // HTTP
+});
+
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddSingleton<Service.EnvironmentService.IEnvironmentService, Service.EnvironmentService.EnvironmentVariablesSrv>();
@@ -42,8 +47,8 @@ app.MapControllerRoute(
    name: "default",
    pattern: "{controller}/{action}/{id?}");
 
-app.Run();
-
 // Trigger the start of the DatalayerService
 var dataLayerService = app.Services.GetRequiredService<Service.DatalayerService>();
 dataLayerService.Init();
+
+app.Run();
