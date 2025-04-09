@@ -46,9 +46,8 @@ services:
     container_name: otp_share
     ports:
       - "8080:8080"
-      - "8081:8081"
     environment:
-      ENABLE_ADMIN: "true"
+      ENABLE_ADMIN: "false"
       ADMIN_USER: "admin"
       ADMIN_PASS: "admin"
       VW_URL: "https://vaultwarden.example.com"

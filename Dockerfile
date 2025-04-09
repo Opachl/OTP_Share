@@ -43,4 +43,8 @@ RUN dotnet publish "./OTP_Share.csproj" -c $BUILD_CONFIGURATION -o /app/publish 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+
+# Set execution permissions for the bw cli executable
+RUN chmod +x /app/bw
+
 ENTRYPOINT ["dotnet", "OTP_Share.dll"]
