@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Authentication;
-using OTP_Share.Controllers.Routing;
 using Service = OTP_Share.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,8 +10,8 @@ builder.Services.AddSingleton<Service.VaultwardenService.IVaultService, Service.
 builder.Services.AddSingleton<Service.StateDBService.IStateDBService, Service.StateDBService.StateDBService>();
 builder.Services.AddSingleton<Service.DatalayerService>();
 
-builder.Services.AddAuthentication("BasicAuthentication")
-   .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
+//builder.Services.AddAuthentication("BasicAuthentication")
+//   .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
 builder.Services.AddSession();
 
 var app = builder.Build();
@@ -22,10 +20,10 @@ var app = builder.Build();
 if(!app.Environment.IsDevelopment())
 {
   app.UseExceptionHandler("/Home/Error");
-  app.UseHsts();
+  //app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 app.UseSession();
