@@ -13,7 +13,7 @@ builder.Services.AddSingleton<Service.StateDBService.IStateDBService, Service.St
 builder.Services.AddSingleton<Service.DatalayerService>();
 
 builder.Services.AddAuthentication("BasicAuthentication")
-    .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
+   .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
 builder.Services.AddSession();
 
 var app = builder.Build();
@@ -34,14 +34,18 @@ app.UseAuthorization();
 
 // This handles all clean root URL logic
 app.MapControllerRoute(
-    name: "clean",
-    pattern: "",
-    defaults: new { controller = "Router", action = "Index" }
+   name: "clean",
+   pattern: "",
+   defaults: new { controller = "Router", action = "Index" }
 );
 
 // Optional: fallback for other controller routes
 app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller}/{action}/{id?}");
+   name: "default",
+   pattern: "{controller}/{action}/{id?}");
 
 app.Run();
+
+// Trigger the start of the DatalayerService
+var dataLayerService = app.Services.GetRequiredService<Service.DatalayerService>();
+dataLayerService.Init();

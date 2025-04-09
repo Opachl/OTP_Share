@@ -4,8 +4,6 @@
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 USER $APP_UID
 WORKDIR /app
-EXPOSE 8080
-EXPOSE 8081
 
 ENV ENABLE_ADMIN="false"
 ENV ADMIN_USER="admin"
@@ -19,6 +17,12 @@ ENV DB_SERVERPORT="3306"
 ENV DB_USER=""
 ENV DB_PASSWORD=""
 ENV DB_DATABASE="optShare"
+
+EXPOSE 80
+# Overwrite NET ENV-Variables
+ENV ASPNETCORE_URLS=http://+:80
+ENV ASPNETCORE_HTTP_PORTS = 80
+ENV DOTNET_RUNNING_IN_CONTAINER=true
 
 # This stage is used to build the service project
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build

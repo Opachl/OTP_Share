@@ -20,6 +20,11 @@ namespace OTP_Share.Services
       _logger = logger;
     }
 
+    public void Init()
+    {
+      _logger.LogInformation("Initializing DatalayerService...");
+    }
+
     public ShareItem RegisterNewShare(string vaultID, int maxShares, DateTime expireDate)
     {
       ShareItem result = null;
