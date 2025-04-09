@@ -35,7 +35,7 @@ namespace OTP_Share.Services.VaultwardenService
 
           var loginResponse = _CLI.Login(_EnvSrv.VaultwardenURL, _EnvSrv.VaultwardenClientId, _EnvSrv.VaultwardenClientSecret, _EnvSrv.VaultwardenUserPassword);
           if(loginResponse != null)
-            _logger.LogInformation("Login response received. Result: {Result}", loginResponse.Result);
+            _logger.LogInformation("Login response received. Result: {Result}, {ResultMsg}", loginResponse.Result, loginResponse.ResultMsg);
           else
             _logger.LogWarning("Login response is null.");
 
@@ -44,7 +44,7 @@ namespace OTP_Share.Services.VaultwardenService
             var itemsResponse = _CLI.ListItems();
 
             if(itemsResponse != null)
-              _logger.LogInformation("Items response received. Command Result Count: {Count}", itemsResponse.CmdResult?.Count() ?? 0);
+              _logger.LogInformation("Items response received. Command Result Count: {Count}", itemsResponse?.CmdResult?.Count() ?? 0);
             else
               _logger.LogWarning("Items response is null.");
 
