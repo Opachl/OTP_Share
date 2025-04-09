@@ -1,6 +1,8 @@
 # OTP_Share
-
 OTP_Share is a Razor Pages project designed to manage and share OTP (One-Time Password) accounts securely. This project is built on .NET 8 and can be deployed using Docker.
+
+### NOTE:
+This project is in early development and may not be fully functional. Use at your own risk.
 
 ## Features
 - Secure OTP sharing
@@ -77,3 +79,30 @@ services:
 volumes:
   db_data:
 ```
+
+## TODO / Pending Steps
+The following improvements are planned for future development:
+
+### 1. Improve Performance
+- **Current Issue**: The site reacts slowly, especially under load.
+- **Planned Actions**:
+  - Optimize database queries to reduce latency.
+  - Implement caching for frequently accessed data.
+  - Profile and optimize server-side code to identify bottlenecks.
+  - Consider using asynchronous programming where applicable.
+
+### 2. Enhance Security
+- **Current Issue**: Some code may expose too much information or lack proper security configurations.
+- **Planned Actions**:
+  - Review and sanitize all user inputs to prevent injection attacks.
+  - Implement stricter access controls for sensitive endpoints.
+  - Mask sensitive information in logs and error messages.
+  - Add secure headers (e.g., Content Security Policy, X-Frame-Options).
+  - Conduct a security audit to identify and fix vulnerabilities.
+
+### 3. Documentation
+- Improve documentation for developers and users to make the project easier to understand and contribute to.
+
+---
+
+Let me know if you need further updates or additional sections!
