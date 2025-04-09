@@ -27,19 +27,14 @@
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.2" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Content Update="C:\Users\c.langel\.nuget\packages\authcenter_bitwarden_client\1.0.0\contentFiles\any\net6.0\bw">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Update="C:\Users\c.langel\.nuget\packages\authcenter_bitwarden_client\1.0.0\contentFiles\any\net6.0\bw.exe">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Update="C:\Users\clang\.nuget\packages\authcenter_bitwarden_client\1.0.0\contentFiles\any\net6.0\bw">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Update="C:\Users\clang\.nuget\packages\authcenter_bitwarden_client\1.0.0\contentFiles\any\net6.0\bw.exe">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
+<ItemGroup>  
+ <Content Update="$(NuGetPackageRoot)authcenter_bitwarden_client/1.0.0/contentFiles/any/net6.0/bw">  
+   <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>  
+ </Content>  
+ <Content Update="$(NuGetPackageRoot)authcenter_bitwarden_client/1.0.0/contentFiles/any/net6.0/bw.exe">  
+   <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>  
+ </Content>  
+</ItemGroup>
+
 
 </Project>

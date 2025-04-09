@@ -40,7 +40,7 @@ Here is the `docker-compose.yml` that powers the whole setup.
 
 services:
   otp_share:
-    image: otp_share:latest
+    image: ghcr.io/opachl/otp_share:master
     container_name: otp_share
     ports:
       - "8080:8080"
