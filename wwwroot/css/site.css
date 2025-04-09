@@ -1,0 +1,41 @@
+body {
+    background-color: #121212;
+    color: #ffffff;
+}
+
+.navbar {
+    background-color: #1f1f1f;
+}
+
+.footer {
+    background-color: #1f1f1f;
+    color: #ffffff;
+}
+
+a.nav-link {
+    color: #ffffff;
+}
+
+    a.nav-link:hover {
+        color: #bbbbbb;
+    }
+
+.otp-container {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    font-size: 1.5em;
+}
+
+#currentOtpCode {
+    line-height: 1;
+}
+
+.countdown-circle {
+    width: 1em;
+    height: 1em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}

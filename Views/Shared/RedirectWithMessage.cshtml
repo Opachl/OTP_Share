@@ -1,0 +1,18 @@
+﻿@{
+    Layout = "_Layout"; // or null if you want a bare page
+    var message = TempData["ErrorMessage"] as string;
+    var redirectUrl = TempData["RedirectUrl"] as string ?? "/";
+}
+
+<div class="alert alert-warning" role="alert">
+    <p>You will be redirected shortly...</p>
+    @message
+</div>
+
+<p><a href="@redirectUrl">Click here if you are not redirected automatically.</a></p>
+
+<script>
+    setTimeout(function () {
+        window.location.href = '@redirectUrl';
+    }, 5000); // 3 seconds
+</script>

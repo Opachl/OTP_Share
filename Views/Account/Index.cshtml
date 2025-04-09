@@ -1,0 +1,174 @@
+﻿@model IEnumerable<GroupItemViewModel>
+@{
+    ViewData["Title"] = "Shared Accounts";
+}
+
+<h1>Shared Accounts Dashboard</h1>
+
+@if(ViewBag.ShowAccResponse)
+{
+    <div class="card bg-dark text-white mb-3">
+        <div class="card-header border-secondary">
+            <h5>Account Response</h5>
+        </div>
+        <div class="card-body">
+            <p><strong>Username:</strong> @ViewBag.AccResponse.UserName</p>
+            <p><strong>Password:</strong> @ViewBag.AccResponse.Password</p>
+
+            <p><strong>OTP Token:</strong></p>
+            <div class="otp-container">
+                <span id="currentOtpCode"></span>
+                <div class="countdown-circle" id="countdownCircle"></div>
+                <span id="otpCodeCounter" class="text-muted" style="margin-left: 0.5em; font-size: 0.9em;"></span>
+            </div>
+        </div>
+        <div class="card-footer border-secondary">
+            <form id="ackForm" method="post" asp-controller="Account" asp-action="AcknowledgeResponse">                
+                <input type="hidden" name="groupID" value="@ViewBag.GID" />
+                <button type="submit" class="btn btn-success">OK</button>
+            </form>
+        </div>
+    </div>
+}
+
+@if(!ViewBag.ShowAccResponse)
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(var item in Model)
+            {
+                <tr>
+                    <td>@item.DisplayName</td>
+                    <td>
+                        <button class="btn btn-primary" onclick="openRequestAccountModal('@item.Id')">
+                            RequestLogin
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <!-- Modal -->
+    <div class="modal fade" id="requestAccountModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <form method="post" asp-controller="Account" asp-action="Request">
+                <div class="modal-content bg-dark text-white">
+                    <div class="modal-header border-secondary">
+                        <h5 class="modal-title">Request Account</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="itemId" id="modalItemId" />
+                        <div class="mb-3">
+                            <label class="form-label text-white">Item Title</label>
+                            <input type="text" class="form-control bg-secondary text-white" id="modalItemTitle" disabled />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-white">Available until</label>
+                            <input type="text" class="form-control bg-secondary text-white" id="modalItemExpireAt" disabled />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-white">Available Account Requests</label>
+                            <input type="text" class="form-control bg-secondary text-white" id="modalItemPendingRequests" disabled />
+                        </div>
+                    </div>
+                    <div class="modal-footer border-secondary">
+                        <button type="submit" class="btn btn-success">Request</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script>
+            document.addEventListener("DOMContentLoaded", function () {
+            const countdownCircle = document.getElementById("countdownCircle");
+            const currentOtpCode = document.getElementById("currentOtpCode");
+            const otpCodeCounter = document.getElementById("otpCodeCounter");
+            const form = document.getElementById("ackForm");
+
+            const otpCodes = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.AccResponse?.TOPT?.TOPTCodes ?? new List<object>()));            
+            let currentIndex = 0;
+
+            function updateOtpDisplay() {
+                if (currentIndex >= otpCodes.length) {
+                    // All OTP codes shown, submit the form
+                    form.submit();
+                    return;
+                }
+
+                const currentCode = otpCodes[currentIndex];
+                currentOtpCode.textContent = currentCode.TOTPCode;
+                otpCodeCounter.textContent = `${currentIndex + 1}/${otpCodes.length}`;
+                startCountdown(currentCode.RemainingSecs);
+            }
+
+            function updateCircle(remainingTime, totalTime) {
+                const computedStyle = window.getComputedStyle(currentOtpCode);
+                const fontSize = parseFloat(computedStyle.fontSize);
+                const radius = fontSize / 2;
+                const diameter = radius * 2;
+                const circumference = 2 * Math.PI * radius;
+                const percentage = remainingTime / totalTime;
+
+                countdownCircle.innerHTML = `
+                    <svg viewBox="0 0 ${diameter} ${diameter}" width="${diameter}" height="${diameter}">
+                        <circle cx="${radius}" cy="${radius}" r="${radius}" stroke="lightgray" stroke-width="2" fill="none" />
+                        <circle cx="${radius}" cy="${radius}" r="${radius}" stroke="green" stroke-width="2" fill="none"
+                            stroke-dasharray="${circumference}" stroke-dashoffset="${circumference * (1 - percentage)}" />
+                        <text x="50%" y="50%" text-anchor="middle" dy=".35em" fill="white" font-size="${radius * 0.9}">
+                            ${remainingTime}
+                        </text>
+                    </svg>
+                `;
+            }
+
+            function startCountdown(totalTime) {
+                let remainingTime = totalTime;
+                updateCircle(remainingTime, totalTime);
+
+                const interval = setInterval(() => {
+                    remainingTime--;
+                    if (remainingTime <= 0) {
+                        clearInterval(interval);
+                        currentIndex++;
+                        updateOtpDisplay();
+                    } else {
+                        updateCircle(remainingTime, totalTime);
+                    }
+                }, 1000);
+            }
+
+            if (otpCodes.length > 0) {
+                updateOtpDisplay();
+            }
+        });
+
+        function openRequestAccountModal(itemId) {
+            document.getElementById("modalItemId").value = itemId;
+
+            // Retrieve the item from the model using JavaScript
+            const itemDic = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ToDictionary(m => m.Id)));
+            const item = itemDic[itemId];
+
+            // Set the modal title input value
+            document.getElementById("modalItemTitle").value = item.DisplayName;
+            document.getElementById("modalItemExpireAt").value = item.ExpireDate;
+            document.getElementById("modalItemPendingRequests").value = item.RequestedTOPTRequests + "/" + item.MaxTOPTRequests;
+
+            // Show the modal
+            var modal = new bootstrap.Modal(document.getElementById("requestAccountModal"));
+            modal.show();
+        }
+    </script>
+}

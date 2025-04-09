@@ -1,0 +1,142 @@
+﻿namespace OTP_Share.Services.EnvironmentService
+{
+  public class EnvironmentVariablesSrv : IEnvironmentService
+  {
+    private const string KEY_ADMINPAGE = "ENABLE_ADMIN";
+    private const string KEY_ADMINUSER = "ADMIN_USER";
+    private const string KEY_ADMINPASS = "ADMIN_PASS";
+
+    private const string KEY_VAULTURL = "VW_URL";
+
+    private const string KEY_VAULTPASSWORD = "VW_USERPW";
+    private const string KEY_CLIENTID = "VW_CLIENTID";
+    private const string KEY_CLIENTSECRET = "VW_CLIENTSECRET";
+
+    private const string KEY_DBSERVER = "DB_SERVER";
+    private const string KEY_DBSERVERPORT = "DB_SERVERPORT";
+    private const string KEY_DBSUSER = "DB_USER";
+    private const string KEY_DBPASSWORD = "DB_PASSWORD";
+    private const string KEY_DB = "DB_DATABASE";
+
+    private const string KEY_NTPDEFAULTPool = "NTP_DEFAULTPool";
+    private const string KEY_NTPSYNCWithSystem = "NTP_SYNCWithSystem";
+
+    public EnvironmentVariablesSrv()
+    {
+      if(string.IsNullOrEmpty(NTPDEFAULTPool))
+        NTPDEFAULTPool = "de.pool.ntp.org";
+    }
+
+    public bool AdminPageEnabled
+    {
+      set { EnsureBoolVar(KEY_ADMINPAGE, value); }
+      get { return EnsureBoolVar(KEY_ADMINPAGE); }
+    }
+
+    public string VaultwardenURL
+    {
+      set { EnsureVar(KEY_ADMINUSER, value); }
+      get { return EnsureVar(KEY_ADMINUSER); }
+    }
+
+    public string AdminUser
+    {
+      set { EnsureVar(KEY_ADMINUSER, value); }
+      get { return EnsureVar(KEY_ADMINUSER); }
+    }
+
+    public string AdminPassword
+    {
+      set { EnsureVar(KEY_VAULTURL, value); }
+      get { return EnsureVar(KEY_VAULTURL); }
+    }
+
+    public string VaultwardenUserPassword
+    {
+      set { EnsureVar(KEY_VAULTPASSWORD, value); }
+      get { return EnsureVar(KEY_VAULTPASSWORD); }
+    }
+
+    public string VaultwardenClientId
+    {
+      set { EnsureVar(KEY_CLIENTID, value); }
+      get { return EnsureVar(KEY_CLIENTID); }
+    }
+
+    public string VaultwardenClientSecret
+    {
+      set { EnsureVar(KEY_CLIENTSECRET, value); }
+      get { return EnsureVar(KEY_CLIENTSECRET); }
+    }
+
+    public string DB_SERVER
+    {
+      set { EnsureVar(KEY_DBSERVER, value); }
+      get { return EnsureVar(KEY_DBSERVER); }
+    }
+
+    public string DB_SERVER_PORT
+    {
+      set { EnsureVar(KEY_DBSERVERPORT, value); }
+      get { return EnsureVar(KEY_DBSERVERPORT); }
+    }
+
+    public string DB_USER
+    {
+      set { EnsureVar(KEY_DBSUSER, value); }
+      get { return EnsureVar(KEY_DBSUSER); }
+    }
+
+    public string DB_PASSWORD
+    {
+      set { EnsureVar(KEY_DBPASSWORD, value); }
+      get { return EnsureVar(KEY_DBPASSWORD); }
+    }
+
+    public string DB_DB
+    {
+      set { EnsureVar(KEY_DB, value); }
+      get { return EnsureVar(KEY_DB); }
+    }
+
+    public string DB_ConnectionString
+    {
+      get
+      {
+        var connectionString = $"Server={DB_SERVER};Port={DB_SERVER_PORT};Database={DB_DB};User Id={DB_USER};Password={DB_PASSWORD};";
+        return connectionString;
+      }
+    }
+
+    public string NTPDEFAULTPool
+    {
+      set { EnsureVar(KEY_NTPDEFAULTPool, value); }
+      get { return EnsureVar(KEY_NTPDEFAULTPool); }
+    }
+
+    public bool NTPSYNCWithSystem
+    {
+      set { EnsureBoolVar(KEY_NTPSYNCWithSystem, value); }
+      get { return EnsureBoolVar(KEY_NTPSYNCWithSystem); }
+    }
+
+    public bool EnsureBoolVar(string variable, bool value = false)
+    {
+      var strBool = EnsureVar(variable, value.ToString().ToLower());
+      if(string.IsNullOrEmpty(strBool))
+        return false;
+
+      return strBool == "1" || strBool == "true";
+    }
+
+    public string EnsureVar(string variable, string value = null)
+    {
+      var currentVariableState = Environment.GetEnvironmentVariable(variable);
+
+      if(string.IsNullOrEmpty(currentVariableState) && (!string.IsNullOrEmpty(value) && (currentVariableState != value)))
+        Environment.SetEnvironmentVariable(variable, value);
+
+      return Environment.GetEnvironmentVariable(variable);
+    }
+  }
+}

@@ -1,0 +1,112 @@
+﻿@model IEnumerable<ItemViewModel>
+@{
+    ViewData["Title"] = "Admin Index";
+}
+
+<h1>Admin Dashboard</h1>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var item in Model)
+        {
+            <tr>
+                <td>@item.Title</td>
+                <td>
+                    <button class="btn btn-primary" onclick="openRegisterModal('@item.Id', '@item.Title')">
+                        Register
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Modal -->
+<div class="modal fade" id="registerModal" tabindex="-1" role="dialog">
+   <div class="modal-dialog" role="document">
+       <form method="post" asp-controller="Admin" asp-action="Register">
+           <div class="modal-content bg-dark text-white">
+               <div class="modal-header border-secondary">
+                   <h5 class="modal-title">Register Item</h5>
+                   <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+               </div>
+               <div class="modal-body">
+                   <input type="hidden" name="ItemId" id="modalItemId" />
+                   <div class="mb-3">
+                       <label class="form-label text-white">Item Title</label>
+                       <input type="text" class="form-control bg-secondary text-white" id="modalItemTitle" disabled />
+                   </div>
+                   <div class="mb-3">
+                       <label class="form-label text-white">Max Usages</label>
+                       <input type="number" name="MaxUsages" class="form-control bg-secondary text-white" required />
+                   </div>
+                   <div class="mb-3">
+                       <label class="form-label text-white">Expire Date</label>
+                       <input type="date" name="ExpireDate" class="form-control bg-secondary text-white" required />
+                   </div>
+               </div>
+               <div class="modal-footer border-secondary">
+                   <button type="submit" class="btn btn-success">Submit</button>
+                   <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+               </div>
+           </div>
+       </form>
+   </div>
+</div>
+
+@{
+    var groupId = TempData["GroupID"] as string;
+}
+
+@if(!string.IsNullOrEmpty(groupId))
+{
+    <div class="modal fade show" id="registerModalResult" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Register Item Result</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Group ID: @groupId</p>
+                    <button onclick="copyToClipboard('@groupId')">Copy</button>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        function openRegisterModal(itemId, title) {
+            document.getElementById("modalItemId").value = itemId;
+            document.getElementById("modalItemTitle").value = title;
+            var modal = new bootstrap.Modal(document.getElementById("registerModal"));
+            modal.show();
+        }
+    </script>
+    <script>
+        
+        function showRegisterModalResult() {
+            var modal = new bootstrap.Modal(document.getElementById("registerModalResult"));
+            modal.show();
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(function () {
+                alert('Copied to clipboard!');
+            }, function (err) {
+                alert('Failed to copy: ' + err);
+            });
+        }
+    </script>
+}
