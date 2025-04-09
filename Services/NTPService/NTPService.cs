@@ -5,12 +5,14 @@ namespace OTP_Share.Services.NTPService
 {
   public class NTPService : INTPService
   {
+    private readonly ILogger<NTPService> _logger;
     private readonly IEnvironmentService _EnvSrv;
     private NtpClient _CLI;
 
-    public NTPService(IEnvironmentService environment)
+    public NTPService(IEnvironmentService environment, ILogger<NTPService> logger)
     {
       _EnvSrv = environment;
+      _logger = logger;
       InitIF();
     }
 
@@ -36,12 +38,14 @@ namespace OTP_Share.Services.NTPService
       {
         try
         {
+          _logger.LogInformation("Querying NTP server...");
           return client.Query();
         }
-        catch
+        catch(Exception ex)
         {
+          _logger.LogWarning("NTP query failed. Retrying in {Delay} seconds. Error: {Error}", delay.TotalSeconds, ex.Message);
           Thread.Sleep(delay);
-          delay = 2 * delay;
+          delay = TimeSpan.FromSeconds(Math.Min(delay.TotalSeconds * 2, 60)); // Cap delay at 60 seconds
         }
       }
     }

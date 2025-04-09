@@ -2,6 +2,8 @@
 {
   public class EnvironmentVariablesSrv : IEnvironmentService
   {
+    private readonly ILogger<EnvironmentVariablesSrv> _logger;
+
     private const string KEY_ADMINPAGE = "ENABLE_ADMIN";
     private const string KEY_ADMINUSER = "ADMIN_USER";
     private const string KEY_ADMINPASS = "ADMIN_PASS";
@@ -21,22 +23,23 @@
     private const string KEY_NTPDEFAULTPool = "NTP_DEFAULTPool";
     private const string KEY_NTPSYNCWithSystem = "NTP_SYNCWithSystem";
 
-    public EnvironmentVariablesSrv()
+    public EnvironmentVariablesSrv(ILogger<EnvironmentVariablesSrv> logger)
     {
+      _logger = logger;
+
       if(string.IsNullOrEmpty(NTPDEFAULTPool))
+      {
         NTPDEFAULTPool = "de.pool.ntp.org";
+        _logger.LogInformation("Default NTP pool set to: {NTPDEFAULTPool}", NTPDEFAULTPool);
+      }
     }
+
+    public static bool IsAdminPageEnabled => Environment.GetEnvironmentVariable(KEY_ADMINPAGE) == "1" || Environment.GetEnvironmentVariable(KEY_ADMINPAGE) == "true";
 
     public bool AdminPageEnabled
     {
       set { EnsureBoolVar(KEY_ADMINPAGE, value); }
       get { return EnsureBoolVar(KEY_ADMINPAGE); }
-    }
-
-    public string VaultwardenURL
-    {
-      set { EnsureVar(KEY_ADMINUSER, value); }
-      get { return EnsureVar(KEY_ADMINUSER); }
     }
 
     public string AdminUser
@@ -46,6 +49,12 @@
     }
 
     public string AdminPassword
+    {
+      set { EnsureVar(KEY_ADMINPASS, value); }
+      get { return EnsureVar(KEY_ADMINPASS); }
+    }
+
+    public string VaultwardenURL
     {
       set { EnsureVar(KEY_VAULTURL, value); }
       get { return EnsureVar(KEY_VAULTURL); }
@@ -134,7 +143,10 @@
       var currentVariableState = Environment.GetEnvironmentVariable(variable);
 
       if(string.IsNullOrEmpty(currentVariableState) && (!string.IsNullOrEmpty(value) && (currentVariableState != value)))
+      {
         Environment.SetEnvironmentVariable(variable, value);
+        _logger.LogInformation("Environment variable {Variable} set to: {Value}", variable, value);
+      }
 
       return Environment.GetEnvironmentVariable(variable);
     }

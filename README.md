@@ -4,6 +4,8 @@ OTP_Share is a Razor Pages project designed to manage and share OTP (One-Time Pa
 ### NOTE:
 This project is in early development and may not be fully functional. Use at your own risk.
 
+[![Docker](https://github.com/Opachl/OTP_Share/actions/workflows/docker-publish.yml/badge.svg?branch=master)](https://github.com/Opachl/OTP_Share/actions/workflows/docker-publish.yml)
+
 ## Features
 - Secure OTP sharing
 - Admin dashboard (optional)
