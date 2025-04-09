@@ -20,7 +20,7 @@ namespace OTP_Share.Services.VaultwardenService
 
     private void InitIF()
     {
-      _CLI = new CustomVaultwardenCLI(TimeSpan.FromSeconds(10));
+      _CLI = new CustomVaultwardenCLI(_EnvSrv.VaultwardenCLITimeout);
     }
 
     public IEnumerable<Item> GetItems()

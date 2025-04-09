@@ -13,6 +13,7 @@
     private const string KEY_VAULTPASSWORD = "VW_USERPW";
     private const string KEY_CLIENTID = "VW_CLIENTID";
     private const string KEY_CLIENTSECRET = "VW_CLIENTSECRET";
+    private const string KEY_CLICOMMANDTIMEOUT = "VW_TIMEOUT";
 
     private const string KEY_DBSERVER = "DB_SERVER";
     private const string KEY_DBSERVERPORT = "DB_SERVERPORT";
@@ -26,6 +27,8 @@
     public EnvironmentVariablesSrv(ILogger<EnvironmentVariablesSrv> logger)
     {
       _logger = logger;
+
+      VaultwardenCLITimeout = TimeSpan.FromSeconds(10);
 
       if(string.IsNullOrEmpty(NTPDEFAULTPool))
       {
@@ -76,6 +79,12 @@
     {
       set { EnsureVar(KEY_CLIENTSECRET, value); }
       get { return EnsureVar(KEY_CLIENTSECRET); }
+    }
+
+    public TimeSpan VaultwardenCLITimeout
+    {
+      set { EnsureTimespanVar(KEY_CLICOMMANDTIMEOUT, value); }
+      get { return EnsureTimespanVar(KEY_CLICOMMANDTIMEOUT); }
     }
 
     public string DB_SERVER
@@ -129,13 +138,30 @@
       get { return EnsureBoolVar(KEY_NTPSYNCWithSystem); }
     }
 
+    public TimeSpan EnsureTimespanVar(string variable, TimeSpan? value = null)
+    {
+      var strVal = EnsureVar(variable, value.ToString());
+      if(string.IsNullOrEmpty(strVal))
+        return TimeSpan.FromSeconds(10);
+      else
+      {
+        if(TimeSpan.TryParse(strVal, out var result))
+          return result;
+        else
+        {
+          _logger.LogWarning("Invalid TimeSpan value for {Variable}: {Value}. Defaulting to 10 seconds.", variable, strVal);
+          return TimeSpan.FromSeconds(10);
+        }
+      }
+    }
+
     public bool EnsureBoolVar(string variable, bool value = false)
     {
-      var strBool = EnsureVar(variable, value.ToString().ToLower());
-      if(string.IsNullOrEmpty(strBool))
+      var strVal = EnsureVar(variable, value.ToString().ToLower());
+      if(string.IsNullOrEmpty(strVal))
         return false;
 
-      return strBool == "1" || strBool == "true";
+      return strVal == "1" || strVal == "true";
     }
 
     public string EnsureVar(string variable, string value = null)

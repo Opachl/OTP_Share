@@ -35,6 +35,7 @@ The following environment variables can be configured to customize the applicati
 | `DB_DATABASE`         | `optShare`         | Database name.                                  |
 | `NTP_DEFAULTPool`     | `de.pool.ntp.org`  | Default NTP pool for time synchronization.      |
 | `NTP_SYNCWithSystem`  | (empty)            | Sync with system time (true/false).  (not implemented yet)          |
+| `VAULTWARDEN_CLI_TIMEOUT` | `00:10:00`     | Timeout for Vaultwarden CLI operations.         |
 
 
 Here is the `docker-compose.yml` that powers the whole setup.

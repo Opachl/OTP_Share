@@ -6,6 +6,7 @@
     string VaultwardenUserPassword { get; }
     string VaultwardenClientId { get; }
     string VaultwardenClientSecret { get; }
+    TimeSpan VaultwardenCLITimeout { get; }
 
     public string DB_ConnectionString { get; }
 
