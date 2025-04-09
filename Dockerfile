@@ -46,7 +46,9 @@ COPY --from=publish /app/publish .
 
 # Copy the bw executable from the binarys folder to /app/bw
 # Set execution permissions for the bw cli executable
+USER root
 COPY binarys/bw /app/bw
 RUN chmod +x /app/bw
+USER $APP_UID
 
 ENTRYPOINT ["dotnet", "OTP_Share.dll"]
