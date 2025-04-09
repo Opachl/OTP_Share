@@ -21,7 +21,7 @@ ENV DB_DATABASE="optShare"
 EXPOSE 80
 # Overwrite NET ENV-Variables
 ENV ASPNETCORE_URLS=http://+:80
-ENV ASPNETCORE_HTTP_PORTS = 80
+ENV ASPNETCORE_HTTP_PORTS=80
 ENV DOTNET_RUNNING_IN_CONTAINER=true
 
 # This stage is used to build the service project
