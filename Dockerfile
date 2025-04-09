@@ -44,7 +44,9 @@ FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 
+# Copy the bw executable from the binarys folder to /app/bw
 # Set execution permissions for the bw cli executable
+COPY binarys/bw /app/bw
 RUN chmod +x /app/bw
 
 ENTRYPOINT ["dotnet", "OTP_Share.dll"]
