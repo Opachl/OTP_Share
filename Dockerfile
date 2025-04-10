@@ -43,7 +43,7 @@ RUN dotnet publish "./OTP_Share.csproj" -c $BUILD_CONFIGURATION -o /app/publish 
 # This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
 FROM base AS final
 WORKDIR /app
-COPY --from=publish /app/publish
+COPY --from=publish /app/publish /app
 
 # Install Bitwarden CLI
 USER root
