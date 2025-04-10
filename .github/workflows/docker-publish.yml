@@ -30,6 +30,7 @@ jobs:
       - name: Increment version
         id: increment-version
         run: |
+          chmod +x ./increment-version.sh
           ./increment-version.sh
           echo "VERSION=$(cat version.txt)" >> $GITHUB_ENV
 
