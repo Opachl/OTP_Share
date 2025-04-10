@@ -43,14 +43,15 @@ RUN dotnet publish "./OTP_Share.csproj" -c $BUILD_CONFIGURATION -o /app/publish 
 # This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
 FROM base AS final
 WORKDIR /app
-COPY --from=publish /app/publish .
+COPY --from=publish /app/publish
 
 # Install Bitwarden CLI
 USER root
 RUN apt-get update && apt-get install -y \
     curl \
-    && curl -L https://vault.bitwarden.com/download/?app=cli&platform=linux -o /usr/local/bin/bw \
+    && curl -L "https://vault.bitwarden.com/download/?app=cli&platform=linux" -o /usr/local/bin/bw \
     && chmod +x /usr/local/bin/bw \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
+USER $APP_UID
 ENTRYPOINT ["dotnet", "OTP_Share.dll"]
