@@ -36,5 +36,11 @@
  </Content>  
 </ItemGroup>
 
+<ItemGroup>
+  <None Update="version.txt">
+    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+  </None>
+</ItemGroup>
+
 
 </Project>

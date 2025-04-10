@@ -2,6 +2,24 @@ using Service = OTP_Share.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddSingleton<IConfiguration>(provider =>
+{
+  var configuration = new ConfigurationBuilder()
+      .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+      .AddEnvironmentVariables()
+      .Build();
+
+  // Read version from version.txt
+  var versionFilePath = Path.Combine(AppContext.BaseDirectory, "version.txt");
+  if(File.Exists(versionFilePath))
+  {
+    var version = File.ReadAllText(versionFilePath).Trim();
+    configuration["AppVersion"] = version;
+  }
+
+  return configuration;
+});
+
 builder.WebHost.ConfigureKestrel(options =>
 {
   options.ListenAnyIP(8080); // HTTP
