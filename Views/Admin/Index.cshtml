@@ -21,7 +21,7 @@
                 <td>
                     <div>
                         <span class="active-groups-label" onclick="toggleGroupList('@item.Id')">
-                            Active Groups: @item.ActiveGroupIDs?.Count() ?? 0
+                            Active Groups: @item.ActiveGroupIDs?.Count()
                         </span>
                         <ul class="active-groups-list" id="groupList-@item.Id" style="display: none;">
                             @foreach(var groupIdListItem in item.ActiveGroupIDs)
