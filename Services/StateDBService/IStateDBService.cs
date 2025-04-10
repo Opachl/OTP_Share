@@ -6,6 +6,8 @@
 
     Model.DBSharedLink GetEntry(long id);
 
+    IEnumerable<Model.DBSharedLink> GetValidEntrys();
+
     IEnumerable<Model.DBSharedLink> GetValidEntrys(Guid groupID);
   }
 }

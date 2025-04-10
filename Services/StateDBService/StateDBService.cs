@@ -69,6 +69,18 @@ namespace OTP_Share.Services.StateDBService
       }
     }
 
+    public IEnumerable<Model.DBSharedLink> GetValidEntrys()
+    {
+      using(var db = new StateDBContext(_EnvSrv))
+      {
+        var notExpiredItems = db.SharedToptLinks
+          .Where(x => !x.Deleted && x.ExpireDate > DateTime.Now)
+          .ToList();
+
+        return notExpiredItems;
+      }
+    }
+
     public IEnumerable<Model.DBSharedLink> GetValidEntrys(Guid groupID)
     {
       using(var db = new StateDBContext(_EnvSrv))
