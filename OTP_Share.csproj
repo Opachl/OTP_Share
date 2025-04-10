@@ -29,10 +29,10 @@
 
 <ItemGroup>  
  <Content Update="$(NuGetPackageRoot)authcenter_bitwarden_client/1.0.0/contentFiles/any/net6.0/bw">  
-   <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>  
+   <CopyToOutputDirectory>Never</CopyToOutputDirectory>  
  </Content>  
  <Content Update="$(NuGetPackageRoot)authcenter_bitwarden_client/1.0.0/contentFiles/any/net6.0/bw.exe">  
-   <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>  
+   <CopyToOutputDirectory>Never</CopyToOutputDirectory>  
  </Content>  
 </ItemGroup>
 
