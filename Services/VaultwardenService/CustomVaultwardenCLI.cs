@@ -92,10 +92,9 @@ namespace OTP_Share
         $"BW_CLIENTSECRET={clientSecret}"
       };
 
-      var correctedURL = EnsureValidServerURL(url);
       var commands = new List<string>()
       {
-        $"bw config server {correctedURL}",
+        $"bw config server {url}",
         //$"BW_CLIENTID={clientId} BW_CLIENTSECRET={clientSecret} bw login --apikey",
         $"bw login --apikey",
         $"bw unlock {password} --raw"
@@ -184,27 +183,6 @@ namespace OTP_Share
       };
 
       return result;
-    }
-
-    private string EnsureValidServerURL(string url)
-    {
-      if(string.IsNullOrWhiteSpace(url))
-        throw new ArgumentException("URL cannot be null or empty.", nameof(url));
-
-      // Ensure the URL starts with "https://"
-      if(!url.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
-      {
-        if(url.StartsWith("http://", StringComparison.OrdinalIgnoreCase))
-          url = "https://" + url.Substring("http://".Length);
-        else
-          url = "https://" + url;
-      }
-
-      // Ensure the URL ends with "/"
-      if(!url.EndsWith("/"))
-        url += "/";
-
-      return url;
     }
 
     #region IDisposable Support

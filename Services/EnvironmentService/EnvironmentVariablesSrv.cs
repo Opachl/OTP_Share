@@ -13,6 +13,8 @@
     private const string KEY_VAULTPASSWORD = "VW_USERPW";
     private const string KEY_CLIENTID = "VW_CLIENTID";
     private const string KEY_CLIENTSECRET = "VW_CLIENTSECRET";
+    private const string KEY_CLIENTID_2 = "BW_CLIENTID";
+    private const string KEY_CLIENTSECRET_2 = "BW_CLIENTSECRET";
     private const string KEY_CLICOMMANDTIMEOUT = "VW_TIMEOUT";
 
     private const string KEY_DBSERVER = "DB_SERVER";
@@ -28,6 +30,8 @@
     {
       _logger = logger;
 
+      _logger.LogInformation("Initializing EnvironmentVariablesSrv...");
+
       if(string.IsNullOrEmpty(EnsureVar(KEY_CLICOMMANDTIMEOUT)))
         VaultwardenCLITimeout = TimeSpan.FromSeconds(10);
 
@@ -36,6 +40,9 @@
         NTPDEFAULTPool = "de.pool.ntp.org";
         _logger.LogInformation("Default NTP pool set to: {NTPDEFAULTPool}", NTPDEFAULTPool);
       }
+
+      VaultwardenClientId2 = VaultwardenClientId;
+      VaultwardenClientSecret2 = VaultwardenClientSecret;
     }
 
     public static bool IsAdminPageEnabled => Environment.GetEnvironmentVariable(KEY_ADMINPAGE) == "1" || Environment.GetEnvironmentVariable(KEY_ADMINPAGE) == "true";
@@ -80,6 +87,18 @@
     {
       set { EnsureVar(KEY_CLIENTSECRET, value); }
       get { return EnsureVar(KEY_CLIENTSECRET); }
+    }
+
+    public string VaultwardenClientId2
+    {
+      set { EnsureVar(KEY_CLIENTID_2, value); }
+      get { return EnsureVar(KEY_CLIENTID_2); }
+    }
+
+    public string VaultwardenClientSecret2
+    {
+      set { EnsureVar(KEY_CLIENTSECRET_2, value); }
+      get { return EnsureVar(KEY_CLIENTSECRET_2); }
     }
 
     public TimeSpan VaultwardenCLITimeout
