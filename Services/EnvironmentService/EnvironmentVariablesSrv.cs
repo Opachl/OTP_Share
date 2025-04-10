@@ -28,7 +28,8 @@
     {
       _logger = logger;
 
-      VaultwardenCLITimeout = TimeSpan.FromSeconds(10);
+      if(string.IsNullOrEmpty(EnsureVar(KEY_CLICOMMANDTIMEOUT)))
+        VaultwardenCLITimeout = TimeSpan.FromSeconds(10);
 
       if(string.IsNullOrEmpty(NTPDEFAULTPool))
       {
@@ -138,42 +139,63 @@
       get { return EnsureBoolVar(KEY_NTPSYNCWithSystem); }
     }
 
-    public TimeSpan EnsureTimespanVar(string variable, TimeSpan? value = null)
+    public bool EnsureBoolVar(string variable, bool? value = null)
     {
-      var strVal = EnsureVar(variable, value.ToString());
+      // Use EnsureVar to set or get the environment variable as a string
+      var strVal = EnsureVar(variable, value.ToString().ToLower());
+
+      // If the value is null, set the variable to false
       if(string.IsNullOrEmpty(strVal))
-        return TimeSpan.FromSeconds(10);
+        value = false;
+
+      // Try to parse the string value to a boolean
+      if(bool.TryParse(strVal, out var result))
+        return result;
       else
       {
-        if(TimeSpan.TryParse(strVal, out var result))
-          return result;
-        else
-        {
-          _logger.LogWarning("Invalid TimeSpan value for {Variable}: {Value}. Defaulting to 10 seconds.", variable, strVal);
-          return TimeSpan.FromSeconds(10);
-        }
+        // If parsing fails, return the default value (false)
+        _logger.LogWarning("Invalid boolean value for {Variable}: {Value}. Defaulting to false.", variable, strVal);
+        return false;
       }
     }
 
-    public bool EnsureBoolVar(string variable, bool value = false)
+    public TimeSpan EnsureTimespanVar(string variable, TimeSpan? value = null)
     {
-      var strVal = EnsureVar(variable, value.ToString().ToLower());
-      if(string.IsNullOrEmpty(strVal))
-        return false;
+      // Use EnsureVar to set or get the environment variable as a string
+      var strVal = EnsureVar(variable, value.ToString());
 
-      return strVal == "1" || strVal == "true";
+      // If the value is null, set the variable to the default (10 seconds)
+      if(string.IsNullOrEmpty(strVal))
+        value = TimeSpan.FromSeconds(10);
+
+      // Try to parse the string value to a TimeSpan
+      if(TimeSpan.TryParse(strVal, out var result))
+        return result;
+      else
+      {
+        // If parsing fails, return the default value (10 seconds)
+        _logger.LogWarning("Invalid TimeSpan value for {Variable}: {Value}. Defaulting to 10 seconds.", variable, strVal);
+        return TimeSpan.FromSeconds(10);
+      }
     }
 
     public string EnsureVar(string variable, string value = null)
     {
+      // Get the current state of the environment variable
       var currentVariableState = Environment.GetEnvironmentVariable(variable);
 
-      if(string.IsNullOrEmpty(currentVariableState) && (!string.IsNullOrEmpty(value) && (currentVariableState != value)))
+      // If the value is null, set the variable to an empty string
+      if(string.IsNullOrEmpty(value) && string.IsNullOrEmpty(currentVariableState))
+        Environment.SetEnvironmentVariable(variable, value);
+
+      // If the value is different, update the environment variable and log it
+      if(currentVariableState != value && !string.IsNullOrEmpty(value))
       {
         Environment.SetEnvironmentVariable(variable, value);
         _logger.LogInformation("Environment variable {Variable} set to: {Value}", variable, value);
       }
 
+      // Return the current state of the environment variable
       return Environment.GetEnvironmentVariable(variable);
     }
   }

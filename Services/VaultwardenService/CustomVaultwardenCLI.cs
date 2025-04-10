@@ -82,28 +82,28 @@ namespace OTP_Share
       return result;
     }
 
-    private IEnumerable<RawCliResponse> LogInUsingApi(string url, string clientId, string clientSecret, string password)
+    private IEnumerable<RawCliResponse> loLogInUsingApi(string url, string clientId, string clientSecret, string password)
     {
       List<RawCliResponse> results = new List<RawCliResponse>();
 
-      var envVariables = new string[]
-      {
-        $"BW_CLIENTID={clientId}",
-        $"BW_CLIENTSECRET={clientSecret}"
-      };
+      //var envVariables = new string[]
+      //{
+      //  $"BW_CLIENTID={clientId}",
+      //  $"BW_CLIENTSECRET={clientSecret}"
+      //};
 
       var correctedURL = EnsureValidServerURL(url);
       var commands = new List<string>()
       {
         $"bw config server {correctedURL}",
-        "BW_CLIENTID=$BW_CLIENTID BW_CLIENTSECRET=$BW_CLIENTSECRET bw login --apikey",
+        $"BW_CLIENTID={clientId} BW_CLIENTSECRET={clientSecret} bw login --apikey",
         $"bw unlock {password} --raw"
       };
 
       int cmdIndex = 0;
       foreach(string command in commands)
       {
-        var cmdResult = IssueCLIShellCommand(command, mCommandTimeout, envVariables);
+        var cmdResult = IssueCLIShellCommand(command, mCommandTimeout);
         cmdResult.CmdID = cmdIndex;
         results.Add(cmdResult);
         cmdIndex++;
