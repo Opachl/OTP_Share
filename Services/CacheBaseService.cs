@@ -13,6 +13,7 @@ namespace OTP_Share.Services
 
     public CacheBaseService(ILogger logger, TimeSpan cacheDuration)
     {
+      _logger = logger;
       _cache = new MemoryCache(new MemoryCacheOptions());
     }
 

@@ -56,8 +56,8 @@ namespace OTP_Share
 
     public CustomVaultResponse<IEnumerable<Item>> ListItems()
     {
-      string cmd = "list items --session \"" + mSession + "\"";
-      var cmdResult = IssueCLICommand(cmd, mCommandTimeout);
+      var cmd = CreateBWCliCommand("list items --session \"" + mSession + "\"");
+      var cmdResult = IssueCLIShellCommand(cmd, mCommandTimeout);
 
       var result = CustomVaultResponse<IEnumerable<Item>>.CreateFrom(cmdResult);
       return result;
@@ -65,7 +65,8 @@ namespace OTP_Share
 
     public CustomVaultResponse<string> LogOut()
     {
-      var cmdResult = IssueCLICommand("logout", mCommandTimeout);
+      var cmd = CreateBWCliCommand("logout");
+      var cmdResult = IssueCLIShellCommand(cmd, mCommandTimeout);
 
       var result = CustomVaultResponse<string>.CreateFrom(cmdResult);
       return result;
@@ -73,8 +74,8 @@ namespace OTP_Share
 
     public CustomVaultResponse<Item> GetItem(string id_or_name)
     {
-      string cmd = $"get item {id_or_name} --session \"{mSession}\"";
-      var cmdResult = IssueCLICommand(cmd, mCommandTimeout);
+      var cmd = CreateBWCliCommand($"get item {id_or_name} --session \"{mSession}\"");
+      var cmdResult = IssueCLIShellCommand(cmd, mCommandTimeout);
 
       var result = CustomVaultResponse<Item>.CreateFrom(cmdResult);
       return result;
@@ -92,91 +93,89 @@ namespace OTP_Share
 
       var commands = new List<string>()
       {
-        $"config server {url}",
-        $"login --apikey",
-        $"unlock {password} --raw"
+        CreateBWCliCommand($"config server {url}"),
+        CreateBWCliCommand($"login --apikey"),
+        CreateBWCliCommand($"unlock {password} --raw")
       };
 
       foreach(string command in commands)
       {
-        var cmdResult = IssueCLICommand(command, mCommandTimeout, envVariables);
+        var cmdResult = IssueCLIShellCommand(command, mCommandTimeout, envVariables);
         results.Add(cmdResult);
       }
 
       return results;
     }
 
-    private RawCliResponse IssueCLICommand(string cmd, TimeSpan timeout, params string[] envVariables)
+    private RawCliResponse IssueCLIShellCommand(string cmd, TimeSpan timeout, params string[] envVariables)
     {
-      string bWBinaryFilePath = GetBWBinaryFilePath();
       StringBuilder output = new StringBuilder();
       StringBuilder error = new StringBuilder();
       Process process = new Process();
-      process.StartInfo.FileName = bWBinaryFilePath;
-      process.StartInfo.Arguments = cmd ?? "";
-      process.StartInfo.UseShellExecute = false;
-      process.StartInfo.CreateNoWindow = true;
+
+      // Configure ProcessStartInfo for shell execution
+      process.StartInfo.WorkingDirectory = AppContext.BaseDirectory;
+      process.StartInfo.FileName = "/bin/bash"; // Use bash for shell execution on Linux
+      process.StartInfo.Arguments = $"-c \"{cmd}\""; // Pass the command to bash
+      process.StartInfo.UseShellExecute = false; // Enable shell execution
+      process.StartInfo.CreateNoWindow = true; // Do not create a new window
       process.StartInfo.ErrorDialog = false;
       process.StartInfo.RedirectStandardError = true;
       process.StartInfo.RedirectStandardOutput = true;
-      process.StartInfo.RedirectStandardInput = false;
 
+      // Add environment variables if provided
       if(envVariables != null && envVariables.Length > 0)
       {
         foreach(string envVar in envVariables)
         {
           var keyValue = envVar.Split('=');
           if(keyValue.Length == 2)
-          {
             process.StartInfo.Environment[keyValue[0]] = keyValue[1];
-          }
         }
       }
 
       process.ErrorDataReceived += delegate (object sender, DataReceivedEventArgs eargs)
       {
         if(eargs.Data != null)
-        {
           error.AppendLine(eargs.Data);
-        }
       };
+
       process.OutputDataReceived += delegate (object sender, DataReceivedEventArgs eargs)
       {
         if(eargs.Data != null)
-        {
           output.AppendLine(eargs.Data);
-        }
       };
+
+      // Start the process and capture output
       process.Start();
       process.BeginErrorReadLine();
       process.BeginOutputReadLine();
-      var processExit = process.WaitForExit(timeout);
+      var processExit = process.WaitForExit((int)timeout.TotalMilliseconds);
 
       if(!processExit)
         error.AppendLine("Process timeout");
 
+      // Read the output and error streams
+      if(process.ExitCode != 0)
+        error.AppendLine($"Process exited with code {process.ExitCode}");
+
       var errorStr = error.ToString();
       var result = new RawCliResponse
       {
-        IsError = !processExit || !string.IsNullOrEmpty(errorStr),
-        ErrorMessage = errorStr,
+        IsError = !processExit || !string.IsNullOrEmpty(errorStr) || process.ExitCode != 0,
+        ErrorMessage = error.ToString(),
         CLIOutput = output.ToString()
       };
 
       return result;
     }
 
-    private string GetBWBinaryFilePath()
+    private string CreateBWCliCommand(string cmd)
     {
-      string executableName = (Environment.OSVersion.Platform.ToString().StartsWith("Win") ? "bw.exe" : "bw");
+      string bin = "./bw";
+      string fullCommand = $"{bin} {cmd}";
 
-      var fullPath = Path.Combine(AppContext.BaseDirectory, executableName);
-      if(!File.Exists(fullPath))
-      {
-        throw new Exception(executableName + " not found in current directory. Before start, please download the last version of Bitwarden CLI (BW) from https://bitwarden.com/help/cli/");
-      }
-
-      return fullPath;
+      return fullCommand;
     }
 
     #region IDisposable Support

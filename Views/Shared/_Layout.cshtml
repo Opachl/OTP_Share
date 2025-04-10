@@ -1,6 +1,7 @@
 ﻿@using OTP_Share.Services.EnvironmentService
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -9,8 +10,9 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/OTP_Share.styles.css" asp-append-version="true" />    
 </head>
-<body>
-    <header>
+
+<body class="d-flex flex-column min-vh-100">
+    <header class="flex-shrink-0">
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark border-bottom box-shadow mb-3">
             <div class="container-fluid">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">OTP_Share</a>
@@ -34,17 +36,19 @@
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
+
+    <div class="flex-grow-1 overflow-auto" style="padding-bottom: 4rem;">
+        <main role="main" class="container py-3">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
+    <footer class="flex-shrink-0 border-top footer text-muted">
         <div class="container">
             &copy; 2025 - OTP_Share
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

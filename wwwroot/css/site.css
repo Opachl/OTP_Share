@@ -1,6 +1,15 @@
+html, body {
+    height: 100%;
+}
+
 body {
     background-color: #121212;
     color: #ffffff;
+    margin: 0;
+}
+
+.scroll-padding {
+    padding-bottom: 4rem !important;
 }
 
 .navbar {
