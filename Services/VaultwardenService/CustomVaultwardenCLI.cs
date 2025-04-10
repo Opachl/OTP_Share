@@ -41,8 +41,8 @@ namespace OTP_Share
       var results = LogInUsingApi(url, clientId, clientSecret, password);
 
       var hasError = results.Any(x => x.IsError);
-      var totalErrorMsg = string.Join(Environment.NewLine, results.Where(x => x.IsError).Select(x => x.ErrorMessage.TrimEnd('\r', '\n')));
-      var totalCLIMsg = string.Join(Environment.NewLine, results.Select(x => x.CLIOutput.TrimEnd('\r', '\n')));
+      var totalErrorMsg = string.Join(Environment.NewLine, results.Where(x => x.IsError).Select(x => $"C_{x.CmdID} -> {x.ErrorMessage.TrimEnd('\r', '\n')}"));
+      var totalCLIMsg = string.Join(Environment.NewLine, results.Select(x => $"C_{x.CmdID} -> {x.CLIOutput.TrimEnd('\r', '\n')}"));
 
       var lastStatus = results.LastOrDefault();
       mSession = !hasError ? lastStatus.CLIOutput : null;
@@ -99,10 +99,13 @@ namespace OTP_Share
         CreateBWCliCommand($"unlock {password} --raw")
       };
 
+      int cmdIndex = 0;
       foreach(string command in commands)
       {
         var cmdResult = IssueCLIShellCommand(command, mCommandTimeout, envVariables);
+        cmdResult.CmdID = cmdIndex;
         results.Add(cmdResult);
+        cmdIndex++;
       }
 
       return results;
@@ -333,6 +336,8 @@ namespace OTP_Share
 
   public class RawCliResponse
   {
+    public int CmdID { get; set; }
+
     public bool IsError { get; set; }
     public string ErrorMessage { get; set; }
     public string CLIOutput { get; set; }
