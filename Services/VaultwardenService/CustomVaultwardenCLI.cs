@@ -42,6 +42,7 @@ namespace OTP_Share
 
       var hasError = results.Any(x => x.IsError);
       var totalErrorMsg = string.Join(Environment.NewLine, results.Where(x => x.IsError).Select(x => x.ErrorMessage.TrimEnd('\r', '\n')));
+      var totalCLIMsg = string.Join(Environment.NewLine, results.Select(x => x.CLIOutput.TrimEnd('\r', '\n')));
 
       var lastStatus = results.LastOrDefault();
       mSession = !hasError ? lastStatus.CLIOutput : null;
@@ -49,7 +50,7 @@ namespace OTP_Share
       return new CustomVaultResponse<bool>()
       {
         Result = !hasError,
-        ResultMsg = hasError ? totalErrorMsg : "Success",
+        ResultMsg = hasError ? $"Error: {totalErrorMsg}, CLI: {totalCLIMsg}" : "Success",
         CmdResult = !string.IsNullOrEmpty(mSession)
       };
     }
