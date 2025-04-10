@@ -49,8 +49,11 @@ COPY --from=publish /app/publish /app
 USER root
 RUN apt-get update && apt-get install -y \
     curl \
-    && curl -L "https://vault.bitwarden.com/download/?app=cli&platform=linux" -o /usr/local/bin/bw \
+    unzip \
+    && curl -L "https://vault.bitwarden.com/download/?app=cli&platform=linux" -o /tmp/bw.zip \
+    && unzip /tmp/bw.zip -d /usr/local/bin \
     && chmod +x /usr/local/bin/bw \
+    && rm /tmp/bw.zip \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 USER $APP_UID
