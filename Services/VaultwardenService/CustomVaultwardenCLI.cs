@@ -86,26 +86,31 @@ namespace OTP_Share
     {
       List<RawCliResponse> results = new List<RawCliResponse>();
 
-      //var envVariables = new string[]
-      //{
-      //  $"BW_CLIENTID={clientId}",
-      //  $"BW_CLIENTSECRET={clientSecret}"
-      //};
+      var envVariables = new string[]
+      {
+        $"BW_CLIENTID={clientId}",
+        $"BW_CLIENTSECRET={clientSecret}"
+      };
 
       var correctedURL = EnsureValidServerURL(url);
       var commands = new List<string>()
       {
         $"bw config server {correctedURL}",
-        $"BW_CLIENTID={clientId} BW_CLIENTSECRET={clientSecret} bw login --apikey",
+        //$"BW_CLIENTID={clientId} BW_CLIENTSECRET={clientSecret} bw login --apikey",
+        $"bw login --apikey",
         $"bw unlock {password} --raw"
       };
 
       int cmdIndex = 0;
       foreach(string command in commands)
       {
-        var cmdResult = IssueCLIShellCommand(command, mCommandTimeout);
+        var cmdResult = IssueCLIShellCommand(command, mCommandTimeout, envVariables);
         cmdResult.CmdID = cmdIndex;
         results.Add(cmdResult);
+
+        if(cmdResult.IsError)
+          break; // Optional: stop on first failure
+
         cmdIndex++;
       }
 
@@ -116,59 +121,65 @@ namespace OTP_Share
     {
       StringBuilder output = new StringBuilder();
       StringBuilder error = new StringBuilder();
-      Process process = new Process();
+      bool processExit = false;
+      int processExitCode = 0;
 
-      // Configure ProcessStartInfo for shell execution
-      process.StartInfo.WorkingDirectory = AppContext.BaseDirectory;
-      process.StartInfo.FileName = "/bin/bash"; // Use bash for shell execution on Linux
-      process.StartInfo.Arguments = $"-c \"{cmd}\""; // Pass the command to bash
-      process.StartInfo.UseShellExecute = false;
-      process.StartInfo.CreateNoWindow = true; // Do not create a new window
-      process.StartInfo.ErrorDialog = false;
-      process.StartInfo.RedirectStandardError = true;
-      process.StartInfo.RedirectStandardOutput = true;
-
-      // Add environment variables if provided
-      if(envVariables != null && envVariables.Length > 0)
+      using(Process process = new Process())
       {
-        foreach(string envVar in envVariables)
+        // Configure ProcessStartInfo for shell execution
+        process.StartInfo.WorkingDirectory = AppContext.BaseDirectory;
+        process.StartInfo.FileName = "/bin/bash"; // Use bash for shell execution on Linux
+        process.StartInfo.Arguments = $"-c \"{cmd}\"";
+        process.StartInfo.UseShellExecute = false;
+        process.StartInfo.CreateNoWindow = true; // Do not create a new window
+        process.StartInfo.ErrorDialog = false;
+        process.StartInfo.RedirectStandardError = true;
+        process.StartInfo.RedirectStandardOutput = true;
+
+        // Add environment variables if provided
+        if(envVariables != null && envVariables.Length > 0)
         {
-          var keyValue = envVar.Split('=');
-          if(keyValue.Length == 2)
-            process.StartInfo.Environment[keyValue[0]] = keyValue[1];
+          foreach(string envVar in envVariables)
+          {
+            var keyValue = envVar.Split(new[] { '=' }, 2);
+            if(keyValue.Length == 2)
+              process.StartInfo.Environment[keyValue[0]] = keyValue[1];
+          }
         }
+
+        process.ErrorDataReceived += delegate (object sender, DataReceivedEventArgs eargs)
+        {
+          if(eargs.Data != null)
+            error.AppendLine(eargs.Data);
+        };
+
+        process.OutputDataReceived += delegate (object sender, DataReceivedEventArgs eargs)
+        {
+          if(eargs.Data != null)
+            output.AppendLine(eargs.Data);
+        };
+
+        // Start the process and capture output
+        process.Start();
+        process.BeginErrorReadLine();
+        process.BeginOutputReadLine();
+        processExit = process.WaitForExit((int)timeout.TotalMilliseconds);
+        process.WaitForExit(); // Ensure async output reading completes
+        processExitCode = process.ExitCode;
+
+        if(!processExit)
+          error.AppendLine("Process timeout");
+
+        // Read the output and error streams
+        if(processExitCode != 0)
+          error.AppendLine($"Process exited with code {process.ExitCode}");
       }
-
-      process.ErrorDataReceived += delegate (object sender, DataReceivedEventArgs eargs)
-      {
-        if(eargs.Data != null)
-          error.AppendLine(eargs.Data);
-      };
-
-      process.OutputDataReceived += delegate (object sender, DataReceivedEventArgs eargs)
-      {
-        if(eargs.Data != null)
-          output.AppendLine(eargs.Data);
-      };
-
-      // Start the process and capture output
-      process.Start();
-      process.BeginErrorReadLine();
-      process.BeginOutputReadLine();
-      var processExit = process.WaitForExit((int)timeout.TotalMilliseconds);
-
-      if(!processExit)
-        error.AppendLine("Process timeout");
-
-      // Read the output and error streams
-      if(process.ExitCode != 0)
-        error.AppendLine($"Process exited with code {process.ExitCode}");
 
       var errorStr = error.ToString();
       var result = new RawCliResponse
       {
-        IsError = !processExit || !string.IsNullOrEmpty(errorStr) || process.ExitCode != 0,
-        ErrorMessage = error.ToString(),
+        IsError = !processExit || !string.IsNullOrEmpty(errorStr) || processExitCode != 0,
+        ErrorMessage = errorStr,
         CLIOutput = output.ToString()
       };
 
