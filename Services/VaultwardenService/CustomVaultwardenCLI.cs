@@ -57,7 +57,7 @@ namespace OTP_Share
 
     public CustomVaultResponse<IEnumerable<Item>> ListItems()
     {
-      var cmd = CreateBWCliCommand("list items --session \"" + mSession + "\"");
+      var cmd = "bw list items --session \"" + mSession + "\"";
       var cmdResult = IssueCLIShellCommand(cmd, mCommandTimeout);
 
       var result = CustomVaultResponse<IEnumerable<Item>>.CreateFrom(cmdResult);
@@ -66,7 +66,7 @@ namespace OTP_Share
 
     public CustomVaultResponse<string> LogOut()
     {
-      var cmd = CreateBWCliCommand("logout");
+      var cmd = "bw logout";
       var cmdResult = IssueCLIShellCommand(cmd, mCommandTimeout);
 
       var result = CustomVaultResponse<string>.CreateFrom(cmdResult);
@@ -75,7 +75,7 @@ namespace OTP_Share
 
     public CustomVaultResponse<Item> GetItem(string id_or_name)
     {
-      var cmd = CreateBWCliCommand($"get item {id_or_name} --session \"{mSession}\"");
+      var cmd = $"bw get item {id_or_name} --session \"{mSession}\"";
       var cmdResult = IssueCLIShellCommand(cmd, mCommandTimeout);
 
       var result = CustomVaultResponse<Item>.CreateFrom(cmdResult);
@@ -92,11 +92,12 @@ namespace OTP_Share
         $"BW_CLIENTSECRET={clientSecret}"
       };
 
+      var correctedURL = EnsureValidServerURL(url);
       var commands = new List<string>()
       {
-        CreateBWCliCommand($"config server {url}"),
-        CreateBWCliCommand($"login --apikey"),
-        CreateBWCliCommand($"unlock {password} --raw")
+        $"bw config server {correctedURL}",
+        "BW_CLIENTID=$BW_CLIENTID BW_CLIENTSECRET=$BW_CLIENTSECRET bw login --apikey",
+        $"bw unlock {password} --raw"
       };
 
       int cmdIndex = 0;
@@ -174,12 +175,25 @@ namespace OTP_Share
       return result;
     }
 
-    private string CreateBWCliCommand(string cmd)
+    private string EnsureValidServerURL(string url)
     {
-      string bin = "bw";
-      string fullCommand = $"{bin} {cmd}";
+      if(string.IsNullOrWhiteSpace(url))
+        throw new ArgumentException("URL cannot be null or empty.", nameof(url));
 
-      return fullCommand;
+      // Ensure the URL starts with "https://"
+      if(!url.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+      {
+        if(url.StartsWith("http://", StringComparison.OrdinalIgnoreCase))
+          url = "https://" + url.Substring("http://".Length);
+        else
+          url = "https://" + url;
+      }
+
+      // Ensure the URL ends with "/"
+      if(!url.EndsWith("/"))
+        url += "/";
+
+      return url;
     }
 
     #region IDisposable Support
