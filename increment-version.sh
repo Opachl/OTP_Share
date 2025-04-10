@@ -1,4 +1,4 @@
-﻿#!/bin/bash
+#!/bin/bash
 
 # Read the current version from version.txt
 VERSION=$(cat version.txt)
@@ -16,4 +16,4 @@ NEW_VERSION="$MAJOR.$MINOR.$PATCH"
 echo "$NEW_VERSION" > version.txt
 
 # Output the new version
-echo "$NEW_VERSION
+echo "$NEW_VERSION"
