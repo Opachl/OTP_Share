@@ -45,11 +45,12 @@ FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 
-# Copy the bw executable from the binarys folder to /app/bw
-# Set execution permissions for the bw cli executable
+# Install Bitwarden CLI
 USER root
-COPY binarys/bw /app/bw
-RUN chmod +x /app/bw
-USER $APP_UID
+RUN apt-get update && apt-get install -y \
+    curl \
+    && curl -L https://vault.bitwarden.com/download/?app=cli&platform=linux -o /usr/local/bin/bw \
+    && chmod +x /usr/local/bin/bw \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 ENTRYPOINT ["dotnet", "OTP_Share.dll"]

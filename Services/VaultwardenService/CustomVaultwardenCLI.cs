@@ -121,7 +121,7 @@ namespace OTP_Share
       process.StartInfo.WorkingDirectory = AppContext.BaseDirectory;
       process.StartInfo.FileName = "/bin/bash"; // Use bash for shell execution on Linux
       process.StartInfo.Arguments = $"-c \"{cmd}\""; // Pass the command to bash
-      process.StartInfo.UseShellExecute = false; // Enable shell execution
+      process.StartInfo.UseShellExecute = false;
       process.StartInfo.CreateNoWindow = true; // Do not create a new window
       process.StartInfo.ErrorDialog = false;
       process.StartInfo.RedirectStandardError = true;
@@ -176,7 +176,7 @@ namespace OTP_Share
 
     private string CreateBWCliCommand(string cmd)
     {
-      string bin = "./bw";
+      string bin = "bw";
       string fullCommand = $"{bin} {cmd}";
 
       return fullCommand;
