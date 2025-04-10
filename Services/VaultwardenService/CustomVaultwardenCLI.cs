@@ -82,7 +82,7 @@ namespace OTP_Share
       return result;
     }
 
-    private IEnumerable<RawCliResponse> loLogInUsingApi(string url, string clientId, string clientSecret, string password)
+    private IEnumerable<RawCliResponse> LogInUsingApi(string url, string clientId, string clientSecret, string password)
     {
       List<RawCliResponse> results = new List<RawCliResponse>();
 
